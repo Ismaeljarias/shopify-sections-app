@@ -1,0 +1,175 @@
+{{ 'app-base.css' | asset_url | stylesheet_tag }}
+{{ 'testimonials-slider.css' | asset_url | stylesheet_tag }}
+
+<div class="app-testimonials app-section" id="app-testimonials-{{ section.id }}">
+  <div class="app-container" data-slider data-autoplay="{{ section.settings.autoplay }}">
+    {%- assign heading_text = section.settings.heading | default: "What Our Customers Say" -%}
+    <h2 class="app-h2 app-testimonials__heading">{{ heading_text }}</h2>
+
+    <div class="app-testimonials__wrapper">
+      <div class="app-testimonials__track">
+        {%- if section.blocks.size > 0 -%}
+          {%- for block in section.blocks -%}
+            {%- assign name = block.settings.name -%}
+            {%- assign role = block.settings.role -%}
+            {%- assign rating = block.settings.rating | default: 5 | plus: 0 -%}
+            {%- assign review = block.settings.review -%}
+            {%- assign avatar = block.settings.avatar -%}
+
+            <div class="app-testimonials__item" data-slide {{ block.shopify_attributes }}>
+              <div class="app-testimonials__card">
+                {%- if avatar != blank or name != blank -%}
+                  <div class="app-testimonials__avatar-wrapper">
+                    {%- if avatar != blank -%}
+                      <img
+                        class="app-testimonials__avatar"
+                        src="{{ avatar | image_url: width: 80 }}"
+                        alt="{{ name | escape }}"
+                        loading="lazy"
+                        width="80"
+                        height="80"
+                      >
+                    {%- elsif name != blank -%}
+                      <div class="app-testimonials__avatar app-testimonials__avatar--fallback">
+                        {{ name | slice: 0 | upcase }}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+
+                {%- if rating > 0 -%}
+                  <div class="app-testimonials__rating">
+                    {% render 'stars', rating: rating %}
+                  </div>
+                {%- endif -%}
+
+                {%- if review != blank -%}
+                  <blockquote class="app-testimonials__review">
+                    {{ review }}
+                  </blockquote>
+                {%- endif -%}
+
+                {%- if name != blank or role != blank -%}
+                  <div class="app-testimonials__author">
+                    {%- if name != blank -%}
+                      <div class="app-testimonials__name">{{ name }}</div>
+                    {%- endif -%}
+                    {%- if role != blank -%}
+                      <div class="app-testimonials__role">{{ role }}</div>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        {%- else -%}
+          <!-- Fallback testimonial shown when no blocks have been added -->
+          <div class="app-testimonials__item" data-slide>
+            <div class="app-testimonials__card">
+              <div class="app-testimonials__avatar-wrapper">
+                <div class="app-testimonials__avatar app-testimonials__avatar--fallback">S</div>
+              </div>
+              <div class="app-testimonials__rating">
+                {% render 'stars', rating: 5 %}
+              </div>
+              <blockquote class="app-testimonials__review">
+                Absolutely love this product! The quality is outstanding and it arrived faster than expected.
+              </blockquote>
+              <div class="app-testimonials__author">
+                <div class="app-testimonials__name">Sarah Johnson</div>
+                <div class="app-testimonials__role">Verified Buyer</div>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="app-testimonials__footer">
+      <button type="button" class="app-testimonials__button app-testimonials__prev" data-prev aria-label="Previous testimonial" disabled>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <div class="app-testimonials__dots" data-dots-container></div>
+      <button type="button" class="app-testimonials__button app-testimonials__next" data-next aria-label="Next testimonial" disabled>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ 'testimonials-slider.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Testimonials Slider",
+  "enabled_on": {
+    "templates": ["*"]
+  },
+  "max_blocks": 16,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What Our Customers Say"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay",
+      "default": false,
+      "info": "Automatically cycle through testimonials"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "avatar",
+          "label": "Avatar"
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Customer Name",
+          "default": "Sarah Johnson"
+        },
+        {
+          "type": "text",
+          "id": "role",
+          "label": "Role / Company",
+          "default": "Verified Buyer"
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "label": "Rating",
+          "default": 5
+        },
+        {
+          "type": "textarea",
+          "id": "review",
+          "label": "Review",
+          "default": "Absolutely love this product! The quality is outstanding and it arrived faster than expected."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials Slider",
+      "blocks": [
+        {
+          "type": "testimonial"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
