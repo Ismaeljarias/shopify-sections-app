@@ -1,0 +1,97 @@
+{%- comment -%}
+  TEMPLATE STUB: Newsletter Signup
+  
+  Purpose:
+  Collect email addresses for newsletter subscriptions with optional success message.
+  
+  Intended Behavior:
+  - Email input field with validation
+  - Privacy checkbox (GDPR compliant)
+  - Submit button with loading state
+  - Success/error message display
+  - Integration with Shopify customer email marketing
+  - Klaviyo/Mailchimp integration support
+  
+  Implementation Notes:
+  - Use Shopify Forms API or customer.email
+  - Client-side email validation
+  - Handle form submission with AJAX
+  - Display inline success/error messages
+  - Honeypot field for spam protection
+  - Accessible form labels and ARIA attributes
+{%- endcomment -%}
+
+{{ 'app-base.css' | asset_url | stylesheet_tag }}
+
+<div class="app-newsletter app-section" id="app-newsletter-{{ section.id }}">
+  <div class="app-container">
+    <div class="app-newsletter__wrapper">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="app-h2">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+      
+      {%- if section.settings.subheading != blank -%}
+        <p>{{ section.settings.subheading }}</p>
+      {%- endif -%}
+      
+      {%- comment -%}
+        TODO: Implement newsletter form
+        - Create form with email input
+        - Add privacy checkbox if GDPR required
+        - Implement form validation
+        - Handle submission via AJAX
+        - Display success/error messages
+        - Integrate with email marketing service
+      {%- endcomment -%}
+      
+      <form class="app-newsletter__form">
+        <input type="email" placeholder="Enter your email" required disabled>
+        <button type="submit" disabled>Subscribe</button>
+      </form>
+      
+      <p style="padding: 1rem; text-align: center; color: #6b7280; font-size: 0.875rem;">
+        Newsletter form implementation pending
+      </p>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Newsletter Signup",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Subscribe to Our Newsletter"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Get exclusive offers and updates delivered to your inbox"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Subscribe"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_privacy_checkbox",
+      "label": "Show Privacy Checkbox",
+      "default": true,
+      "info": "Required for GDPR compliance"
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Success Message",
+      "default": "Thanks for subscribing!"
+    }
+  ]
+}
+{% endschema %}

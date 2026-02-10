@@ -1,0 +1,205 @@
+/*
+ * testimonials-slider.css
+ * Styles for Testimonials Slider block
+ * Horizontal scroll-snap slider with navigation
+ */
+
+.app-testimonials {
+  background-color: #f9fafb;
+  position: relative;
+  width: 100vw;
+  left: 50%;
+  transform: translateX(-50%);
+  overflow: hidden;
+}
+
+.app-testimonials__heading {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-top: 2rem;
+}
+
+
+/* Slider Wrapper */
+.app-testimonials__wrapper {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Slider Track (formerly Grid) */
+.app-testimonials__track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  gap: 1.5rem;
+  padding: 1rem 0 2rem 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.app-testimonials__track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Slider Item */
+.app-testimonials__item {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  height: auto;
+}
+
+@media (min-width: 768px) {
+  .app-testimonials__item {
+    flex: 0 0 50%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-testimonials__item {
+    flex: 0 0 33.333%;
+  }
+}
+
+/* Slider Footer (Controls) */
+.app-testimonials__footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+/* Navigation Buttons */
+.app-testimonials__button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.app-testimonials__button:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  color: #111827;
+  border-color: #d1d5db;
+}
+
+.app-testimonials__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Dots */
+.app-testimonials__dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.app-testimonials__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.app-testimonials__dot--active {
+  background-color: #4b5563;
+  transform: scale(1.2);
+}
+
+/* Card */
+.app-testimonials__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  text-align: center;
+}
+
+/* Avatar */
+.app-testimonials__avatar-wrapper {
+  flex-shrink: 0;
+}
+
+.app-testimonials__avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.app-testimonials__avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e5e7eb;
+  color: #374151;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+/* Rating */
+.app-testimonials__rating {
+  display: flex;
+  justify-content: center;
+}
+
+/* Review */
+.app-testimonials__review {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #374151;
+  font-style: italic;
+}
+
+.app-testimonials__review::before {
+  content: '"';
+}
+
+.app-testimonials__review::after {
+  content: '"';
+}
+
+/* Author */
+.app-testimonials__author {
+  margin-top: auto;
+}
+
+.app-testimonials__name {
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.app-testimonials__role {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+

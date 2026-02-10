@@ -1,0 +1,149 @@
+{%- comment -%}
+  TEMPLATE STUB: Video Section
+  
+  Purpose:
+  Display embedded video (YouTube, Vimeo) or self-hosted with optional overlay and CTA.
+  
+  Intended Behavior:
+  - Support YouTube, Vimeo, and self-hosted videos
+  - Optional poster image before play
+  - Play button overlay
+  - Responsive aspect ratio (16:9, 4:3, 1:1)
+  - Optional heading and description
+  - Optional CTA button overlay
+  - Autoplay option (muted)
+  - Full-width or contained layout
+  
+  Implementation Notes:
+  - Parse video URL to determine provider
+  - Use iframe for YouTube/Vimeo embeds
+  - Use HTML5 video tag for self-hosted
+  - Implement custom play button overlay
+  - Handle poster image display
+  - Lazy load video iframe/source
+  - Maintain aspect ratio with CSS
+  - Add privacy-enhanced mode for YouTube
+{%- endcomment -%}
+
+{{ 'app-base.css' | asset_url | stylesheet_tag }}
+
+<div class="app-video app-section" id="app-video-{{ section.id }}">
+  <div class="app-container">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="app-h2">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+    
+    {%- if section.settings.description != blank -%}
+      <p>{{ section.settings.description }}</p>
+    {%- endif -%}
+    
+    {%- comment -%}
+      TODO: Implement video section
+      - Detect video provider from URL
+      - Create responsive video container
+      - Add poster image overlay
+      - Implement play button
+      - Load video iframe/element on play
+      - Handle autoplay if enabled
+      - Add CTA button if configured
+    {%- endcomment -%}
+    
+    <div 
+      class="app-video__container" 
+      data-video
+      data-video-url="{{ section.settings.video_url }}"
+    >
+      {%- if section.settings.poster_image != blank -%}
+        <img 
+          src="{{ section.settings.poster_image | image_url: width: 1200 }}" 
+          alt="{{ section.settings.heading | escape }}"
+          loading="lazy"
+          width="{{ section.settings.poster_image.width }}"
+          height="{{ section.settings.poster_image.height }}"
+        >
+      {%- endif -%}
+      
+      <p style="padding: 3rem; text-align: center; color: #6b7280;">
+        Video player implementation pending
+        <br>
+        <small>URL: {{ section.settings.video_url }}</small>
+      </p>
+    </div>
+    
+    {%- if section.settings.button_text != blank and section.settings.button_link != blank -%}
+      <div style="margin-top: 2rem; text-align: center;">
+        {% render 'button', text: section.settings.button_text, url: section.settings.button_link, style: 'primary' %}
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Video Section",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Watch Our Story"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Learn more about what makes us special"
+    },
+    {
+      "type": "url",
+      "id": "video_url",
+      "label": "Video URL",
+      "info": "YouTube, Vimeo, or MP4 URL"
+    },
+    {
+      "type": "image_picker",
+      "id": "poster_image",
+      "label": "Poster Image",
+      "info": "Thumbnail shown before video plays"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Aspect Ratio",
+      "options": [
+        {
+          "value": "16-9",
+          "label": "16:9 (Widescreen)"
+        },
+        {
+          "value": "4-3",
+          "label": "4:3 (Standard)"
+        },
+        {
+          "value": "1-1",
+          "label": "1:1 (Square)"
+        }
+      ],
+      "default": "16-9"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay",
+      "default": false,
+      "info": "Video will be muted if autoplay is enabled"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link"
+    }
+  ]
+}
+{% endschema %}

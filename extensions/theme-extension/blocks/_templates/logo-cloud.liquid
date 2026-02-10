@@ -1,0 +1,129 @@
+{%- comment -%}
+  TEMPLATE STUB: Logo Cloud
+  
+  Purpose:
+  Display a grid of partner, client, or certification logos.
+  
+  Intended Behavior:
+  - Responsive grid of logos
+  - Grayscale by default, color on hover
+  - Configurable number of columns
+  - Optional links for each logo
+  - Equal height/width containers
+  - Optional ticker/marquee animation
+  - Mobile-friendly layout
+  
+  Implementation Notes:
+  - Use repeatable blocks for each logo
+  - CSS filter for grayscale effect
+  - Flexbox or grid for layout
+  - Object-fit to maintain aspect ratios
+  - Optional infinite scroll animation
+  - Handle various logo dimensions gracefully
+  - Add subtle hover transitions
+{%- endcomment -%}
+
+{{ 'app-base.css' | asset_url | stylesheet_tag }}
+
+<div class="app-logo-cloud app-section" id="app-logo-cloud-{{ section.id }}">
+  <div class="app-container">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="app-h2">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+    
+    {%- comment -%}
+      TODO: Implement logo cloud
+      - Loop through logo blocks
+      - Create responsive grid
+      - Apply grayscale filter with hover effect
+      - Add optional links
+      - Handle ticker animation if enabled
+      - Ensure equal-sized containers
+    {%- endcomment -%}
+    
+    <div class="app-logo-cloud__grid">
+      {%- for block in section.blocks -%}
+        <div class="app-logo-cloud__item" id="{{ block.id }}">
+          {%- if block.settings.logo != blank -%}
+            {%- if block.settings.link != blank -%}
+              <a href="{{ block.settings.link }}" target="_blank" rel="noopener">
+                <img 
+                  src="{{ block.settings.logo | image_url: width: 300 }}" 
+                  alt="{{ block.settings.logo.alt | escape }}"
+                  loading="lazy"
+                  width="{{ block.settings.logo.width }}"
+                  height="{{ block.settings.logo.height }}"
+                >
+              </a>
+            {%- else -%}
+              <img 
+                src="{{ block.settings.logo | image_url: width: 300 }}" 
+                alt="{{ block.settings.logo.alt | escape }}"
+                loading="lazy"
+                width="{{ block.settings.logo.width }}"
+                height="{{ block.settings.logo.height }}"
+              >
+            {%- endif -%}
+          {%- else -%}
+            <p style="text-align: center; color: #d1d5db;">Logo</p>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Logo Cloud",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Trusted By Leading Brands"
+    },
+    {
+      "type": "range",
+      "id": "logos_per_row_desktop",
+      "min": 3,
+      "max": 6,
+      "step": 1,
+      "label": "Logos Per Row (Desktop)",
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "grayscale",
+      "label": "Grayscale Logos",
+      "default": true,
+      "info": "Show logos in grayscale, color on hover"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_ticker",
+      "label": "Enable Ticker Animation",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Logo",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "Logo Image"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link URL"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

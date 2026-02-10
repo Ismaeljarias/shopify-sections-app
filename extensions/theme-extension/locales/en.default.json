@@ -1,0 +1,11 @@
+{
+  "hero_banner": {
+    "name": "Hero Banner"
+  },
+  "testimonials_slider": {
+    "name": "Testimonials Slider"
+  },
+  "faq_accordion": {
+    "name": "FAQ Accordion"
+  }
+}

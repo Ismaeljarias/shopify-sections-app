@@ -1,0 +1,132 @@
+{%- comment -%}
+  TEMPLATE STUB: Timeline
+  
+  Purpose:
+  Display chronological events in a vertical timeline layout.
+  
+  Intended Behavior:
+  - Vertical timeline with events
+  - Alternating left/right layout (desktop)
+  - Stacked layout (mobile)
+  - Year/date markers
+  - Event title, description, optional image
+  - Visual connecting line
+  - Dot/icon for each event
+  - Optional scroll animations
+  
+  Implementation Notes:
+  - Repeatable blocks for timeline items
+  - CSS for timeline line and dots
+  - Flexbox/grid for alternating layout
+  - Mobile: single column, all items left-aligned
+  - Desktop: zigzag layout with alternating sides
+  - Optional images for events
+  - Support rich text in descriptions
+  - Add subtle entrance animations on scroll
+{%- endcomment -%}
+
+{{ 'app-base.css' | asset_url | stylesheet_tag }}
+
+<div class="app-timeline app-section" id="app-timeline-{{ section.id }}">
+  <div class="app-container">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="app-h2">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+    
+    {%- comment -%}
+      TODO: Implement timeline
+      - Loop through event blocks
+      - Create vertical timeline with connecting line
+      - Add dots/icons for each event
+      - Alternate left/right on desktop
+      - Stack on mobile
+      - Add date/year markers
+      - Include optional images
+      - Implement scroll animations
+    {%- endcomment -%}
+    
+    <div class="app-timeline__track">
+      {%- for block in section.blocks -%}
+        <div class="app-timeline__item" id="{{ block.id }}">
+          <div class="app-timeline__date">
+            {{ block.settings.date }}
+          </div>
+          <div class="app-timeline__content">
+            <h3>{{ block.settings.title }}</h3>
+            <p>{{ block.settings.description }}</p>
+          </div>
+          
+          {%- unless forloop.last -%}
+            <div class="app-timeline__line"></div>
+          {%- endunless -%}
+        </div>
+      {%- endfor -%}
+    </div>
+    
+    <p style="padding: 1rem; text-align: center; color: #6b7280; font-size: 0.875rem;">
+      Timeline styling and layout implementation pending
+    </p>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Timeline",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Our Journey"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout Style",
+      "options": [
+        {
+          "value": "alternating",
+          "label": "Alternating (Zigzag)"
+        },
+        {
+          "value": "single",
+          "label": "Single Column"
+        }
+      ],
+      "default": "alternating"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "event",
+      "name": "Timeline Event",
+      "settings": [
+        {
+          "type": "text",
+          "id": "date",
+          "label": "Date",
+          "default": "2024"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Milestone Title"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description",
+          "default": "<p>Description of this milestone or event.</p>"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image (Optional)"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

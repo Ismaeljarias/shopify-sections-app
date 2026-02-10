@@ -1,0 +1,149 @@
+{%- comment -%}
+  TEMPLATE STUB: Image Gallery
+  
+  Purpose:
+  Display a responsive image gallery with lightbox functionality.
+  
+  Intended Behavior:
+  - Masonry or grid layout
+  - Responsive columns (1 mobile, 2-4 desktop)
+  - Click to open lightbox/modal
+  - Lightbox: full-size images, prev/next navigation
+  - Keyboard navigation (arrows, Esc)
+  - Touch swipe support (mobile)
+  - Image captions in lightbox
+  - Lazy loading
+  - Optional filter/category tabs
+  
+  Implementation Notes:
+  - Repeatable blocks for images
+  - CSS Grid for layout
+  - JavaScript lightbox modal
+  - Keyboard event handlers (ArrowLeft, ArrowRight, Escape)
+  - Touch event handlers for swipe
+  - Focus trap in lightbox modal
+  - Prevent body scroll when lightbox open
+  - Preload adjacent images in lightbox
+  - Add loading states
+  - ARIA labels for accessibility
+{%- endcomment -%}
+
+{{ 'app-base.css' | asset_url | stylesheet_tag }}
+
+<div class="app-gallery app-section" id="app-gallery-{{ section.id }}">
+  <div class="app-container">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="app-h2">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+    
+    {%- comment -%}
+      TODO: Implement image gallery
+      - Loop through image blocks
+      - Create responsive grid layout
+      - Add click handlers for lightbox
+      - Build lightbox modal component
+      - Implement prev/next navigation
+      - Add keyboard and touch support
+      - Handle image captions
+      - Implement lazy loading
+    {%- endcomment -%}
+    
+    <div class="app-gallery__grid" data-gallery>
+      {%- for block in section.blocks -%}
+        <div class="app-gallery__item" id="{{ block.id }}">
+          {%- if block.settings.image != blank -%}
+            <img 
+              src="{{ block.settings.image | image_url: width: 600 }}" 
+              alt="{{ block.settings.caption | escape }}"
+              loading="lazy"
+              width="{{ block.settings.image.width }}"
+              height="{{ block.settings.image.height }}"
+              data-gallery-image
+            >
+            {%- if block.settings.caption != blank -%}
+              <p class="app-gallery__caption">{{ block.settings.caption }}</p>
+            {%- endif -%}
+          {%- else -%}
+            <div style="aspect-ratio: 1; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #d1d5db;">
+              Image
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+    
+    <p style="padding: 1rem; text-align: center; color: #6b7280; font-size: 0.875rem;">
+      Gallery grid styling and lightbox implementation pending
+    </p>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Image Gallery",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Gallery"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout Style",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "masonry",
+          "label": "Masonry"
+        }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "label": "Columns (Desktop)",
+      "default": 3
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_lightbox",
+      "label": "Enable Lightbox",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_captions",
+      "label": "Show Captions",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Gallery Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "caption",
+          "label": "Caption"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,131 @@
+{%- comment -%}
+  TEMPLATE STUB: Countdown Timer
+  
+  Purpose:
+  Display a countdown timer for sales, product launches, or limited-time offers.
+  
+  Intended Behavior:
+  - Configurable end date/time
+  - Display days, hours, minutes, seconds
+  - Auto-updates every second
+  - Optional message when timer expires
+  - Optional CTA button
+  - Timezone support
+  - Can hide/show after expiry
+  
+  Implementation Notes:
+  - Use JavaScript to calculate and update countdown
+  - Store target date in data attribute
+  - Handle timezone conversions
+  - Update DOM efficiently (requestAnimationFrame or setInterval)
+  - Display "Expired" message or hide section when done
+  - Respect prefers-reduced-motion for updates
+  - Persist timer state across page loads
+{%- endcomment -%}
+
+{{ 'app-base.css' | asset_url | stylesheet_tag }}
+
+<div class="app-countdown app-section" id="app-countdown-{{ section.id }}">
+  <div class="app-container">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="app-h2">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+    
+    {%- if section.settings.subheading != blank -%}
+      <p>{{ section.settings.subheading }}</p>
+    {%- endif -%}
+    
+    {%- comment -%}
+      TODO: Implement countdown timer
+      - Parse end date from settings
+      - Create JavaScript countdown logic
+      - Update timer display every second
+      - Handle expired state
+      - Show/hide based on expiry setting
+      - Add CTA button if configured
+    {%- endcomment -%}
+    
+    <div 
+      class="app-countdown__timer" 
+      data-countdown-end="{{ section.settings.end_date }}"
+    >
+      <div class="app-countdown__display">
+        <div class="app-countdown__item">
+          <span class="app-countdown__value">00</span>
+          <span class="app-countdown__label">Days</span>
+        </div>
+        <div class="app-countdown__item">
+          <span class="app-countdown__value">00</span>
+          <span class="app-countdown__label">Hours</span>
+        </div>
+        <div class="app-countdown__item">
+          <span class="app-countdown__value">00</span>
+          <span class="app-countdown__label">Minutes</span>
+        </div>
+        <div class="app-countdown__item">
+          <span class="app-countdown__value">00</span>
+          <span class="app-countdown__label">Seconds</span>
+        </div>
+      </div>
+      
+      <p style="padding: 1rem; text-align: center; color: #6b7280; font-size: 0.875rem;">
+        Countdown timer JavaScript implementation pending
+      </p>
+    </div>
+    
+    {%- if section.settings.button_text != blank and section.settings.button_link != blank -%}
+      {% render 'button', text: section.settings.button_text, url: section.settings.button_link, style: 'primary' %}
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Countdown Timer",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Limited Time Offer"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Sale ends soon! Don't miss out."
+    },
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "End Date",
+      "info": "Format: YYYY-MM-DD HH:MM (24-hour format)",
+      "default": "2026-12-31 23:59"
+    },
+    {
+      "type": "text",
+      "id": "expired_message",
+      "label": "Expired Message",
+      "default": "This offer has ended"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_on_expire",
+      "label": "Hide Section When Expired",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link"
+    }
+  ]
+}
+{% endschema %}

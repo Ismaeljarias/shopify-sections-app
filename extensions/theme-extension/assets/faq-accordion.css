@@ -1,0 +1,126 @@
+/*
+ * faq-accordion.css
+ * Styles for FAQ Accordion block
+ * ARIA-compliant with smooth transitions
+ */
+
+.app-faq {
+  background-color: #fff;
+}
+
+.app-faq__heading {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.app-faq__subheading {
+  text-align: center;
+  color: #6b7280;
+  margin: 0 auto 2rem;
+  max-width: 600px;
+}
+
+/* List */
+.app-faq__list {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Item */
+.app-faq__item {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+/* Question button */
+.app-faq__question {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background-color: transparent;
+  border: none;
+  text-align: left;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-family: var(--app-font-family, system-ui, sans-serif);
+  min-height: 44px;
+}
+
+.app-faq__question:hover {
+  background-color: #f9fafb;
+}
+
+.app-faq__question:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.app-faq__question-text {
+  flex: 1;
+}
+
+/* Icon */
+.app-faq__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #6b7280;
+  transition: transform 0.3s ease;
+}
+
+.app-faq__question[aria-expanded="true"] .app-faq__icon {
+  transform: rotate(180deg);
+}
+
+/* Answer */
+.app-faq__answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.app-faq__question[aria-expanded="true"] + .app-faq__answer {
+  grid-template-rows: 1fr;
+}
+
+.app-faq__answer-content {
+  overflow: hidden;
+  padding: 0 1.5rem;
+}
+
+.app-faq__question[aria-expanded="true"] + .app-faq__answer .app-faq__answer-content {
+  padding-bottom: 1.5rem;
+}
+
+.app-faq__answer-content p {
+  margin: 0;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.app-faq__answer-content p + p {
+  margin-top: 0.75rem;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .app-faq__icon,
+  .app-faq__answer {
+    transition: none;
+  }
+}

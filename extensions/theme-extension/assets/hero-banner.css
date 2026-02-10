@@ -1,0 +1,144 @@
+/*
+ * hero-banner.css
+ * Styles for Hero Banner block
+ * Mobile-first, no JavaScript
+ */
+
+.app-hero-banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  width: 100vw;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Height variants */
+.app-hero-banner--small {
+  min-height: 300px;
+}
+
+.app-hero-banner--medium {
+  min-height: 400px;
+}
+
+.app-hero-banner--large {
+  min-height: 600px;
+}
+
+.app-hero-banner--full {
+  min-height: 100vh;
+}
+
+@media (min-width: 768px) {
+  .app-hero-banner--small {
+    min-height: 400px;
+  }
+  
+  .app-hero-banner--medium {
+    min-height: 500px;
+  }
+  
+  .app-hero-banner--large {
+    min-height: 700px;
+  }
+}
+
+/* Media container */
+.app-hero-banner__media {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.app-hero-banner__image,
+.app-hero-banner__video,
+.app-hero-banner__image--placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  position: relative;
+  z-index: 0;
+}
+
+.app-hero-banner__image--placeholder {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+}
+
+/* Overlay */
+.app-hero-banner__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  z-index: 1;
+  display: block;
+}
+
+/* Content */
+.app-hero-banner__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: var(--app-section-padding, 2rem) 0;
+}
+
+.app-hero-banner__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .app-hero-banner__text {
+    max-width: 800px;
+  }
+}
+
+/* Alignment variants */
+.app-hero-banner--align-left .app-hero-banner__text {
+  align-items: flex-start;
+  text-align: left;
+  margin-right: auto;
+}
+
+.app-hero-banner--align-center .app-hero-banner__text {
+  align-items: center;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.app-hero-banner--align-right .app-hero-banner__text {
+  align-items: flex-end;
+  text-align: right;
+  margin-left: auto;
+}
+
+/* Typography */
+.app-hero-banner__heading {
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.app-hero-banner__subheading {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.6;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  margin: 0;
+}
+
+.app-hero-banner__button {
+  display: flex;
+}

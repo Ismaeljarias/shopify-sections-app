@@ -1,0 +1,98 @@
+{%- comment -%}
+  TEMPLATE STUB: Trust Badges
+  
+  Purpose:
+  Display trust indicators like secure checkout, free shipping, money-back guarantee, etc.
+  
+  Intended Behavior:
+  - Grid of trust badge items with icons
+  - Icon + title + optional description
+  - Responsive layout (stacked mobile, horizontal desktop)
+  - Optional custom badge images
+  - Icons from SVG or image uploads
+  
+  Implementation Notes:
+  - Use repeatable blocks for each badge
+  - Support both icon-based and image-based badges
+  - Center-aligned layout
+  - Flexbox or grid for responsive layout
+  - Default icon set (shipping, secure, returns, support)
+{%- endcomment -%}
+
+{{ 'app-base.css' | asset_url | stylesheet_tag }}
+
+<div class="app-trust-badges app-section" id="app-trust-badges-{{ section.id }}">
+  <div class="app-container">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="app-h2">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+    
+    {%- comment -%}
+      TODO: Implement trust badges grid
+      - Loop through blocks
+      - Display icon or image for each badge
+      - Add title and description
+      - Create responsive grid layout
+      - Add hover effects if desired
+    {%- endcomment -%}
+    
+    <div class="app-trust-badges__grid">
+      {%- for block in section.blocks -%}
+        <div class="app-trust-badges__item" id="{{ block.id }}">
+          <p style="text-align: center; color: #6b7280;">
+            Badge: {{ block.settings.title }}
+          </p>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Trust Badges",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": ""
+    },
+    {
+      "type": "range",
+      "id": "badges_per_row",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "label": "Badges Per Row (Desktop)",
+      "default": 4
+    }
+  ],
+  "blocks": [
+    {
+      "type": "badge",
+      "name": "Trust Badge",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon/Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Free Shipping"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Description",
+          "default": "On orders over $50"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

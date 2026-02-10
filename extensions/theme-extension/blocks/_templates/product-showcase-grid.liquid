@@ -1,0 +1,87 @@
+{%- comment -%}
+  TEMPLATE STUB: Product Showcase Grid
+  
+  Purpose:
+  Display a grid of featured products with images, titles, prices, and quick-add buttons.
+  
+  Intended Behavior:
+  - Responsive grid layout (1 column mobile, 2-3 columns tablet, 3-4 columns desktop)
+  - Product images with hover effects
+  - Product title, price, and optional compare-at price
+  - Quick-add to cart button
+  - Optional collection filter
+  - Lazy loading for images
+  
+  Implementation Notes:
+  - Use Shopify product metaobjects or collection.products
+  - Handle out-of-stock states
+  - Support product variants
+  - Mobile-first responsive grid
+  - Smooth hover transitions on images
+{%- endcomment -%}
+
+{{ 'app-base.css' | asset_url | stylesheet_tag }}
+
+<div class="app-product-grid app-section" id="app-product-grid-{{ section.id }}">
+  <div class="app-container">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="app-h2">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+    
+    {%- comment -%}
+      TODO: Implement product grid
+      - Fetch products from collection
+      - Loop through products and display in grid
+      - Add product cards with image, title, price
+      - Implement quick-add functionality
+    {%- endcomment -%}
+    
+    <p style="padding: 2rem; text-align: center; color: #6b7280;">
+      Product grid implementation pending
+    </p>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Product Showcase Grid",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Featured Products"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "label": "Products to Show",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "label": "Columns (Desktop)",
+      "default": 3
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quick_add",
+      "label": "Show Quick Add Button",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

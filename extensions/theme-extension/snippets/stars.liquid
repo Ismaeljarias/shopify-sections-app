@@ -1,0 +1,72 @@
+{%- comment -%}
+  stars.liquid
+  Renders star rating (1-5 stars)
+  
+  Usage:
+  {% render 'stars', rating: 5 %}
+  
+  Parameters:
+  - rating: number (1-5)
+{%- endcomment -%}
+
+{%- liquid
+  assign rating = rating | default: 5 | at_most: 5 | at_least: 0
+  assign full_stars = rating | floor
+  assign has_half = rating | modulo: 1
+  assign empty_stars = 5 | minus: full_stars
+  if has_half > 0
+    assign empty_stars = empty_stars | minus: 1
+  endif
+-%}
+
+<div class="app-stars" role="img" aria-label="{{ rating }} out of 5 stars">
+  {%- for i in (1..full_stars) -%}
+    <span class="app-stars__star app-stars__star--full" aria-hidden="true">★</span>
+  {%- endfor -%}
+  
+  {%- if has_half > 0 -%}
+    <span class="app-stars__star app-stars__star--half" aria-hidden="true">
+      <span class="app-stars__star-inner">★</span>
+    </span>
+  {%- endif -%}
+  
+  {%- for i in (1..empty_stars) -%}
+    <span class="app-stars__star app-stars__star--empty" aria-hidden="true">☆</span>
+  {%- endfor -%}
+</div>
+
+<style>
+.app-stars {
+  display: inline-flex;
+  gap: 0.125rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: #fbbf24;
+}
+
+.app-stars__star {
+  display: inline-block;
+}
+
+.app-stars__star--full {
+  color: #fbbf24;
+}
+
+.app-stars__star--half {
+  position: relative;
+  color: #d1d5db;
+}
+
+.app-stars__star--half .app-stars__star-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  overflow: hidden;
+  color: #fbbf24;
+}
+
+.app-stars__star--empty {
+  color: #d1d5db;
+}
+</style>

@@ -1,0 +1,84 @@
+{%- comment -%}
+  button.liquid
+  Renders a styled button
+  
+  Usage:
+  {% render 'button', text: 'Click Me', url: section.settings.button_link, style: 'primary' %}
+  
+  Parameters:
+  - text: string (button text)
+  - url: string (button URL)
+  - style: string (primary|secondary)
+{%- endcomment -%}
+
+{%- liquid
+  assign button_text = text | default: 'Button'
+  assign button_url = url | default: '#'
+  assign button_style = style | default: 'primary'
+-%}
+
+{%- if button_url != blank and button_text != blank -%}
+  <a 
+    href="{{ button_url }}" 
+    class="app-button app-button--{{ button_style }}"
+    {% if button_url contains 'http' %}target="_blank" rel="noopener noreferrer"{% endif %}
+  >
+    {{ button_text }}
+  </a>
+{%- endif -%}
+
+<style>
+.app-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: var(--app-font-family, system-ui, sans-serif);
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  border: 2px solid transparent;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.app-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.app-button--primary {
+  background-color: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.app-button--primary:hover {
+  background-color: #333;
+  border-color: #333;
+}
+
+.app-button--primary:active {
+  background-color: #555;
+  border-color: #555;
+}
+
+.app-button--secondary {
+  background-color: transparent;
+  color: #000;
+  border-color: #000;
+}
+
+.app-button--secondary:hover {
+  background-color: #f3f4f6;
+}
+
+.app-button--secondary:active {
+  background-color: #e5e7eb;
+}
+</style>
