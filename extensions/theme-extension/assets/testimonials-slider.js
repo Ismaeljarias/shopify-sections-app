@@ -27,6 +27,8 @@
       this.pageCount = 1;
       this.currentPage = 0;
 
+      this._onResize = this.handleResize.bind(this);
+
       if (!this.track || this.slides.length === 0) return;
 
       this.init();
@@ -40,7 +42,12 @@
       this.setupAutoplay();
       this.setupMutationObserver();
       
-      window.addEventListener('resize', this.handleResize.bind(this));
+      // Use ResizeObserver for container-aware resizing
+      this.resizeObserver = new ResizeObserver(entries => {
+        // Debounce slightly or just call handler
+        window.requestAnimationFrame(() => this.handleResize());
+      });
+      this.resizeObserver.observe(this.slider);
       this.handleEditorEvents();
 
       // Initial metrics update with retry
@@ -59,10 +66,8 @@
     }
 
     handleResize() {
-      clearTimeout(this._resizeTimer);
-      this._resizeTimer = setTimeout(() => {
-        this.updateMetricsAndControls();
-      }, 200);
+      // handleResize is now triggered by ResizeObserver
+      this.updateMetricsAndControls();
     }
 
     updateMetricsAndControls() {
@@ -83,13 +88,13 @@
       }
 
       const trackWidth = this.track.clientWidth;
-      const itemWidth = this.slides[0].offsetWidth;
+      const firstSlideWidth = this.slides[0].offsetWidth;
       
-      // Avoid division by zero
-      if (itemWidth === 0) {
-          this.itemsPerView = 1;
+      // Calculate how many items are actually visible based on rendered widths
+      if (firstSlideWidth > 0 && trackWidth > 0) {
+        this.itemsPerView = Math.round(trackWidth / firstSlideWidth) || 1;
       } else {
-          this.itemsPerView = Math.round(trackWidth / itemWidth) || 1;
+        this.itemsPerView = 1;
       }
       
       this.pageCount = Math.ceil(this.slides.length / this.itemsPerView);
@@ -231,6 +236,7 @@
     }
 
     updateControls() {
+      // 1. Update Dots
       if (this.dots) {
         this.dots.forEach((dot, index) => {
           const isActive = index === this.currentPage;
@@ -239,9 +245,36 @@
         });
       }
 
+      // 2. Hide/Show entire controls footer or individual buttons
+      // We assume controls are inside a footer wrapper or handle buttons directly.
       const hasMultiplePages = this.pageCount > 1;
-      if (this.prevButton) this.prevButton.disabled = !hasMultiplePages;
-      if (this.nextButton) this.nextButton.disabled = !hasMultiplePages;
+
+      // Handle visibility of the footer container
+      const footer = this.slider.querySelector('.app-testimonials__footer');
+      if (footer) {
+          if (hasMultiplePages) {
+              footer.classList.remove('is-hidden');
+              footer.style.display = ''; // Restore default flex
+          } else {
+              footer.classList.add('is-hidden');
+              footer.style.display = 'none';
+          }
+      }
+
+      // Handle disabling buttons (still good practice even if hidden)
+      if (this.prevButton) {
+          this.prevButton.disabled = !hasMultiplePages;
+          this.prevButton.style.display = hasMultiplePages ? '' : 'none'; // Also hide individually if footer logic fails
+      }
+      if (this.nextButton) {
+          this.nextButton.disabled = !hasMultiplePages;
+          this.nextButton.style.display = hasMultiplePages ? '' : 'none';
+      }
+      
+      // If using dots container, hide it too if needed
+      if (this.dotsContainer) {
+          this.dotsContainer.style.display = hasMultiplePages ? '' : 'none';
+      }
     }
 
     /** Reinitialize the slider (e.g. after blocks are added/removed in the editor). */
@@ -287,7 +320,7 @@
 
     destroy() {
       this.stopAutoplay();
-      window.removeEventListener('resize', this.handleResize);
+      if (this.resizeObserver) this.resizeObserver.disconnect();
       if (this.observer) this.observer.disconnect();
     }
   }

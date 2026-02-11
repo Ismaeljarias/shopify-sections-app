@@ -11,6 +11,10 @@
   left: 50%;
   transform: translateX(-50%);
   overflow: hidden;
+  
+  /* Enable container queries */
+  container-type: inline-size;
+  container-name: testimonials;
 }
 
 .app-testimonials__heading {
@@ -45,22 +49,36 @@
   display: none;
 }
 
-/* Slider Item */
+/* Slider Item - Container-Aware Sizing */
 .app-testimonials__item {
   flex: 0 0 100%;
-  scroll-snap-align: start;
+  scroll-snap-align: center;
+  width: 100%;
   height: auto;
 }
 
-@media (min-width: 768px) {
+/* Container Queries: Respond to the container's width, not viewport */
+/* Small containers (< 640px): 1 card */
+@container testimonials (min-width: 640px) {
   .app-testimonials__item {
-    flex: 0 0 calc((100% - 1.5rem) / 2);
+    flex: 0 0 calc(50% - 0.75rem);
+    width: calc(50% - 0.75rem);
   }
 }
 
-@media (min-width: 1024px) {
+/* Medium containers (640px - 959px): 2 cards */
+@container testimonials (min-width: 960px) {
   .app-testimonials__item {
-    flex: 0 0 calc((100% - 3rem) / 3);
+    flex: 0 0 calc(33.333% - 1rem);
+    width: calc(33.333% - 1rem);
+  }
+}
+
+/* Large containers (960px+): 3 cards */
+@container testimonials (min-width: 1280px) {
+  .app-testimonials__item {
+    flex: 0 0 calc(25% - 1.125rem);
+    width: calc(25% - 1.125rem);
   }
 }
 
@@ -72,6 +90,13 @@
   gap: 1.5rem;
   margin-top: 1.5rem;
   padding-bottom: 2rem;
+  /* Hide connection lines or controls if empty */
+  min-height: 40px; 
+  transition: opacity 0.3s ease;
+}
+
+.app-testimonials__footer.is-hidden {
+  display: none;
 }
 
 /* Navigation Buttons */
