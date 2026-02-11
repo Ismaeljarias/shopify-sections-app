@@ -6,61 +6,62 @@ A library of production-ready Shopify theme sections built entirely with Theme A
 
 This app delivers high-quality, accessible theme sections to merchants using Shopify 2.0 Theme App Extensions. It is designed to be lightweight, performant, and easy to integrate with any Shopify theme.
 
+Recently, the app was refactored to use **App Blocks** exclusively, enabling a "lego-like" experience where individual items (like a single Testimonial or FAQ) can be added anywhere in a section. We developed a proprietary "Auto-Grouping" system that automatically collects these individual blocks and renders them as cohesive, functional components (e.g., a Slider or an Accordion) without requiring complex configuration.
+
 ## Features
 
-### Fully Implemented Sections
+### 1. Testimonials Slider (App Block)
+**Refactored for Dynamic Grouping**
 
-These sections are fully functional, styled, and ready for production use. The **Testimonials Slider** and **FAQ Accordion** use **dynamic blocks**, allowing merchants to add or remove items directly from the theme editor via "Add block".
+Instead of a rigid section, the Testimonials Slider is now a single "Testimonial Slide" App Block.
+- **Auto-Grouping**: When you add multiple "Testimonial Slide" blocks to a section, they automatically group together to form a fully functional slider.
+- **One-Click Setup**: Just add the blocks. The first block's settings (Heading, Autoplay) control the entire slider container.
+- **Responsive**: The slider adapts to 1 slide on mobile, 2 on tablet, and 3 on desktop.
+- **Infinite Loop**: Features separate Next/Prev buttons and DOTS pagination that handles infinite scrolling seamlessly.
+- **Smart Loading**: Uses `MutationObserver` to detect when blocks are added or removed in the Theme Editor and instantly updates the slider layout.
 
-1. **Hero Banner** (`hero-banner.liquid`)
+**Usage:**
+1. Go to Theme Editor -> Add Section -> Apps -> Testimonial Slide.
+2. Add multiple "Testimonial Slide" blocks to the same section.
+3. They will automatically render as a carousel.
 
-   - **Media Support**: Background image with responsive sizing or MP4 video background.
-   - **Content**: Customizable heading, subheading, and CTA button.
-   - **Customization**: Adjust section height (Small, Medium, Large, Full Screen), text alignment (Left, Center, Right), and overlay opacity.
-   - **Performance**: Optimized image loading with `srcset` and `lazy` loading.
+### 2. FAQ Accordion (App Block)
+**Refactored for Dynamic Grouping**
 
-2. **Testimonials Slider** (`testimonials-slider.liquid`)
+Similar to testimonials, the FAQ is now a single "FAQ Item" App Block.
+- **Auto-Grouping**: Multiple "FAQ Item" blocks added to a section will automatically group into a shared Accordion container.
+- **Smart Interactions**: Supports "Allow Multiple Open" (configurable via the first block).
+- **Event Delegation**: Uses advanced event delegation to ensure click handlers work perfectly even for dynamically added items.
+- **Smooth Animations**: CSS-grid based transitions for opening/closing answers.
+- **Accessibility**: Full ARIA support (aria-expanded, aria-controls) and keyboard navigation (Enter/Space to toggle, Arrow keys to navigate).
 
-   - **Dynamic Blocks**: Merchants add individual testimonials via "Add block" in the theme editor (up to 16).
-   - **Rich Content**: Each block includes avatar image/initials, customer name, role/company, star rating, and review text.
-   - **Interactive**: Horizontal scroll-snap slider with "Next" and "Previous" navigation buttons.
-   - **Autoplay**: Optional autoplay functionality.
-   - **Fallback**: Displays a placeholder testimonial if no blocks are added.
+**Usage:**
+1. Go to Theme Editor -> Add Section -> Apps -> FAQ Item.
+2. Add multiple "FAQ Item" blocks.
+3. They will stack and function as a single Accordion.
 
-3. **FAQ Accordion** (`faq-accordion.liquid`)
+### 3. Hero Banner (App Block)
+- **Media Support**: Background image with responsive sizing or MP4 video background.
+- **Content**: Customizable heading, subheading, and CTA button.
+- **Customization**: Adjust section height (Small, Medium, Large, Full Screen), text alignment (Left, Center, Right), and overlay opacity.
 
-   - **Dynamic Blocks**: Merchants add individual FAQ items via "Add block" in the theme editor (up to 20).
-   - **Rich Text**: Answers support rich text formatting (links, bold, etc.).
-   - **Usability**: Smooth expand/collapse transitions.
-   - **Accessibility**: Full keyboard navigation support and ARIA attributes.
-   - **Configuration**: Option to allow multiple items to be open simultaneously.
+## Technical Implementation
 
-### Available Templates (Stubs)
+### Auto-Grouping Architecture
+To overcome the limitation of App Blocks not supporting nested blocks, we implemented a client-side grouping strategy:
+1. **Liquid**: Renders the block content hidden initially or in a raw state.
+2. **JavaScript**:
+   - Detects the block's presence.
+   - Finds or Creates a shared "Container" (Slider or Accordion) within the parent section.
+   - Moves the block content into this container.
+   - Initializes the interactive logic (Slider script or Accordion script) once the DOM is stable.
+   - Listens for `shopify:section:load` and `shopify:block:select` events to ensure the editor experience is smooth.
 
-The following blocks are available as starting points for further development:
-
-- Product showcase grid
-- Newsletter signup
-- Trust badges
-- Countdown timer
-- Before/after slider
-- Video section
-- Logo cloud
-- Feature comparison table
-- Timeline
-- Image gallery
-
-## Technical Details
-
-- **Framework**: Shopify Theme App Extensions
-- **Target**: `section` (compatible with all templates via `"templates": ["*"]`)
-- **Dynamic Blocks**: Testimonials and FAQ use Shopify's blocks schema for unlimited merchant customization
-- **Performance**:
-  - Zero external dependencies (jQuery-free).
-  - CSS variables for theming.
-  - Native browser APIs (IntersectionObserver, ScrollSnap).
-- **Typography**: Uses dynamic viewport units (`clamp()`) for fluid typography.
-- **Accessibility**: WCAG 2.1 AA compliant contrast ratios and keyboard navigation.
+### Performance & Best Practices
+- **Zero Dependencies**: Pure Vanilla JS and CSS. No jQuery or external libraries.
+- **CSS Variables**: Used for theming and easy customization.
+- **Robust Error Handling**: Scripts include checks for race conditions, DOM availability, and timeouts to ensure stability in the Theme Editor.
+- **Modern CSS**: Uses `scroll-snap` for sliders and `grid-template-rows` for accordion animations.
 
 ## Project Structure
 
@@ -70,66 +71,33 @@ sections-app/
 ├── package.json                # Scripts and dependencies
 ├── extensions/
 │   └── theme-extension/
-│       ├── sections/           # Theme sections (appear in "Add section")
+│       ├── blocks/             # App Blocks (Primary components)
 │       │   ├── hero-banner.liquid
-│       │   ├── testimonials-slider.liquid
-│       │   └── faq-accordion.liquid
-│       ├── blocks/             # Reserved for future app blocks
-│       │   └── _templates/     # Stub templates for future sections
-│       ├── snippets/           # Reusable Liquid snippets (stars, button)
-│       ├── assets/             # CSS and JS files
+│       │   ├── testimonials-slider.liquid  # Auto-groups into Slider
+│       │   └── faq-accordion.liquid        # Auto-groups into Accordion
+│       ├── snippets/           # Reusable Liquid snippets
+│       ├── assets/             # CSS and JS files (Logic for grouping & interaction)
 │       └── locales/            # Translation files
 └── README.md
 ```
 
 ## Development
 
-### Prerequisites
-
-- Node.js (Latest LTS)
-- Shopify CLI (`npm install -g @shopify/cli`)
-- A Shopify Partner account and development store
-
-### Local Development
-
-1. Install dependencies:
-
-   ```
+1. **Install Dependencies**:
+   ```bash
    npm install
    ```
 
-2. Start the development server:
-
-   ```
+2. **Run Locally**:
+   ```bash
    npm run dev
    ```
 
-   This will prompt you to log in to your Partner account and select your app/store.
-
-### Deployment
-
-To deploy your extensions to Shopify:
-
-```
-npm run deploy
-```
-
-## Design System Reference
-
-- **Typography**:
-  - H1: `clamp(1.5rem, 4vw, 3rem)`
-  - Body: `16px`, `line-height: 1.6`
-  - Font Stack: `system-ui, -apple-system, sans-serif`
-- **Spacing**:
-  - Section Padding: `clamp(2rem, 5vw, 4rem)`
-  - Container Max-width: `1200px`
-- **Breakpoints**:
-  - Mobile: `<768px`
-  - Tablet: `≥768px`
-  - Desktop: `≥1024px`
+3. **Deploy**:
+   ```bash
+   npm run deploy
+   ```
 
 ## License
 
-Proprietary - Free to use via Shopify App Store
-
-For issues and feature requests, contact support through the Shopify App Store listing.
+Proprietary - Free to use via Shopify App Store.

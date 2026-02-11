@@ -34,30 +34,64 @@
 
     init() {
       this.slides = Array.from(this.slider.querySelectorAll('[data-slide]'));
-      this.updateMetrics();
-      this.createDots();
+      if (this.slides.length === 0) return;
+      
       this.setupNavigation();
       this.setupAutoplay();
-      this.updateControls();
-
+      this.setupMutationObserver();
+      
       window.addEventListener('resize', this.handleResize.bind(this));
       this.handleEditorEvents();
+
+      // Initial metrics update with retry
+      this.updateMetricsAndControls();
+    }
+
+    setupMutationObserver() {
+      if (!this.track) return;
+      // Disconnect existing if any
+      if (this.observer) this.observer.disconnect();
+      
+      this.observer = new MutationObserver(() => {
+        this.reinit();
+      });
+      this.observer.observe(this.track, { childList: true, subtree: true });
     }
 
     handleResize() {
       clearTimeout(this._resizeTimer);
       this._resizeTimer = setTimeout(() => {
-        this.updateMetrics();
-        this.createDots();
-        this.updateControls();
+        this.updateMetricsAndControls();
       }, 200);
     }
 
+    updateMetricsAndControls() {
+       // Retry if layout not ready
+       if (this.slides.length > 0 && this.slides[0].offsetWidth === 0) {
+           requestAnimationFrame(() => this.updateMetricsAndControls());
+           return;
+       }
+       this.updateMetrics();
+       this.createDots();
+       this.updateControls();
+    }
+
     updateMetrics() {
-      if (this.slides.length === 0) return;
+      if (this.slides.length === 0) {
+        this.pageCount = 0;
+        return;
+      }
+
       const trackWidth = this.track.clientWidth;
       const itemWidth = this.slides[0].offsetWidth;
-      this.itemsPerView = Math.round(trackWidth / itemWidth) || 1;
+      
+      // Avoid division by zero
+      if (itemWidth === 0) {
+          this.itemsPerView = 1;
+      } else {
+          this.itemsPerView = Math.round(trackWidth / itemWidth) || 1;
+      }
+      
       this.pageCount = Math.ceil(this.slides.length / this.itemsPerView);
 
       if (this.currentPage >= this.pageCount) {
@@ -80,6 +114,12 @@
         btn.type = 'button';
         btn.className = 'app-testimonials__dot';
         btn.setAttribute('aria-label', `Go to page ${i + 1}`);
+        // Highlight active dot logic will be handled in updateControls
+        if (i === this.currentPage) {
+             btn.classList.add('app-testimonials__dot--active');
+             btn.setAttribute('aria-selected', 'true');
+        }
+        
         btn.addEventListener('click', () => {
           this.stopAutoplay();
           this.goToPage(i);
@@ -91,18 +131,24 @@
     }
 
     setupNavigation() {
+      // Remove old listeners to avoid duplicates if re-run?
+      // Actually setupNavigation is only called in init(). reinit() doesn't call it.
+      // So checks are fine.
+
       if (this.prevButton) {
-        this.prevButton.addEventListener('click', () => {
+        // Clone to remove old listeners if needed, but easier to just add once.
+        // We'll assume init runs once per instance.
+        this.prevButton.onclick = () => {
           this.stopAutoplay();
           this.goToPrevious();
-        });
+        };
       }
 
       if (this.nextButton) {
-        this.nextButton.addEventListener('click', () => {
+        this.nextButton.onclick = () => {
           this.stopAutoplay();
           this.goToNext();
-        });
+        };
       }
 
       this.track.addEventListener('scroll', () => {
@@ -153,6 +199,7 @@
       this.currentPage = pageIndex;
       const slideIndex = pageIndex * this.itemsPerView;
       const slide = this.slides[slideIndex];
+      // Safety check
       if (!slide) return;
 
       this.isScrolling = true;
@@ -162,16 +209,19 @@
         inline: 'start'
       });
 
+      // Update state immediately for responsiveness
+      this.updateControls();
+
       setTimeout(() => {
         this.isScrolling = false;
       }, 500);
-
-      this.updateControls();
     }
 
     handleScroll() {
       const scrollLeft = this.track.scrollLeft;
       const trackWidth = this.track.clientWidth;
+      if (trackWidth === 0) return;
+      
       const newPage = Math.round(scrollLeft / trackWidth);
 
       if (newPage !== this.currentPage && newPage >= 0 && newPage < this.pageCount) {
@@ -189,17 +239,22 @@
         });
       }
 
-      if (this.prevButton) this.prevButton.disabled = false;
-      if (this.nextButton) this.nextButton.disabled = false;
+      const hasMultiplePages = this.pageCount > 1;
+      if (this.prevButton) this.prevButton.disabled = !hasMultiplePages;
+      if (this.nextButton) this.nextButton.disabled = !hasMultiplePages;
     }
 
     /** Reinitialize the slider (e.g. after blocks are added/removed in the editor). */
     reinit() {
       this.slides = Array.from(this.slider.querySelectorAll('[data-slide]'));
-      if (this.slides.length === 0) return;
-      this.updateMetrics();
-      this.createDots();
-      this.updateControls();
+      // If no slides, clear controls
+      if (this.slides.length === 0) {
+          this.pageCount = 0;
+          this.createDots();
+          this.updateControls();
+          return;
+      }
+      this.updateMetricsAndControls();
     }
 
     handleEditorEvents() {
@@ -233,15 +288,25 @@
     destroy() {
       this.stopAutoplay();
       window.removeEventListener('resize', this.handleResize);
+      if (this.observer) this.observer.disconnect();
     }
   }
+
+  window.TestimonialsSlider = TestimonialsSlider;
 
   function initSliders() {
     const sliders = document.querySelectorAll('[data-slider]');
     sliders.forEach(slider => {
+      // Check if already initialized
+      if (slider.dataset.initialized) return;
+      
       new TestimonialsSlider(slider.closest('.app-testimonials'));
+      slider.dataset.initialized = "true";
     });
   }
+
+  // Expose init function globally
+  window.initTestimonialsSliders = initSliders;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initSliders);
@@ -250,9 +315,27 @@
   }
 
   document.addEventListener('shopify:section:load', (e) => {
+    // When a section loads, it might contain a slider or BE the slider container
     const sliders = e.target.querySelectorAll('[data-slider]');
     sliders.forEach(slider => {
-      new TestimonialsSlider(slider.closest('.app-testimonials'));
+       if (!slider.dataset.initialized) {
+         new TestimonialsSlider(slider.closest('.app-testimonials'));
+         slider.dataset.initialized = "true";
+       }
     });
+
+    // Also check if the target ITSELF is a slider wrapper (common in dynamic creations)
+    if (e.target.hasAttribute('data-slider')) {
+        if (!e.target.dataset.initialized) {
+           new TestimonialsSlider(e.target.closest('.app-testimonials'));
+           e.target.dataset.initialized = "true";
+        }
+    }
   });
+
+  // Listen for custom event 'app:testimonials:update' to force re-init
+  document.addEventListener('app:testimonials:update', () => {
+    initSliders();
+  });
+
 })();

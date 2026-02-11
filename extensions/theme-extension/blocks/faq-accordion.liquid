@@ -1,0 +1,164 @@
+{{ 'app-base.css' | asset_url | stylesheet_tag }}
+{{ 'faq-accordion.css' | asset_url | stylesheet_tag }}
+<!-- Include JS, and also listen for custom events -->
+<script src="{{ 'faq-accordion.js' | asset_url }}" defer></script>
+
+{%- assign heading = block.settings.heading -%}
+{%- assign subheading = block.settings.subheading -%}
+{%- assign allow_multiple = block.settings.allow_multiple -%}
+{%- assign question = block.settings.question -%}
+{%- assign answer = block.settings.answer -%}
+
+<div class="app-faq-item-wrapper" 
+     id="app-faq-wrapper-{{ block.id }}"
+     data-app-block-id="{{ block.id }}" 
+     data-heading="{{ heading | escape }}"
+     data-subheading="{{ subheading | escape }}"
+     data-allow-multiple="{{ allow_multiple }}"
+     style="display: none;">
+  
+  <div class="app-faq__item" data-faq-item data-original-block-id="{{ block.id }}">
+    <button
+      type="button"
+      class="app-faq__question"
+      aria-expanded="false"
+      aria-controls="faq-answer-{{ block.id }}"
+      data-faq-button
+    >
+      <span class="app-faq__question-text">{{ question }}</span>
+      <span class="app-faq__icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </span>
+    </button>
+
+    <div
+      id="faq-answer-{{ block.id }}"
+      class="app-faq__answer"
+      role="region"
+      data-faq-answer
+    >
+      <div class="app-faq__answer-content">
+        {{ answer }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const blockId = "{{ block.id }}";
+    
+    function groupFaqBlock() {
+      // Delay to ensure DOM stability, especially in Theme Editor
+      setTimeout(() => {
+        const wrapper = document.getElementById(`app-faq-wrapper-${blockId}`);
+        if (!wrapper) return;
+
+        const section = wrapper.closest('.shopify-section') || wrapper.parentElement;
+        if (!section) return;
+
+        const GroupId = "app-faq-group-" + section.id;
+        let groupContainer = section.querySelector('#' + GroupId);
+
+        // Create container if needed. 
+        // We check again to be sure another block didn't create it in the same tick.
+        if (!groupContainer) {
+          groupContainer = document.createElement('div');
+          groupContainer.id = GroupId;
+          groupContainer.className = "app-faq app-section";
+          
+          const heading = wrapper.getAttribute('data-heading');
+          const subheading = wrapper.getAttribute('data-subheading');
+          const allowMultiple = wrapper.getAttribute('data-allow-multiple');
+
+          groupContainer.innerHTML = `
+            <div class="app-container">
+              <h2 class="app-h2 app-faq__heading">${heading}</h2>
+              ${subheading ? `<p class="app-faq__subheading">${subheading}</p>` : ''}
+              
+              <div class="app-faq__list" data-faq-accordion data-multiple="${allowMultiple}">
+                <!-- Items inserted here -->
+              </div>
+            </div>
+          `;
+
+          if (wrapper.parentElement) {
+              wrapper.parentElement.insertBefore(groupContainer, wrapper);
+          }
+        }
+
+        const item = wrapper.querySelector('[data-faq-item]');
+        if (item) {
+          const list = groupContainer.querySelector('.app-faq__list');
+          if (list) {
+            const existing = list.querySelector(`[data-original-block-id="${blockId}"]`);
+            if (existing) existing.remove();
+
+            list.appendChild(item);
+            
+            // Re-init JS for the accordion logic
+            // We use a custom event that our JS uses to check for new accordions
+            window.dispatchEvent(new CustomEvent('app:faq:update'));
+          }
+        }
+      }, 10);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', groupFaqBlock);
+    } else {
+      groupFaqBlock();
+    }
+    
+    document.addEventListener('shopify:section:load', groupFaqBlock);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "FAQ Item",
+  "target": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Grouping Settings (First Item Only)"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Find answers to common questions about our products and services"
+    },
+    {
+      "type": "checkbox",
+      "id": "allow_multiple",
+      "label": "Allow Multiple Open",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Question & Answer"
+    },
+    {
+      "type": "text",
+      "id": "question",
+      "label": "Question",
+      "default": "What is your shipping policy?"
+    },
+    {
+      "type": "richtext",
+      "id": "answer",
+      "label": "Answer",
+      "default": "<p>We offer free standard shipping on all orders over $50. Orders are typically processed within 1-2 business days.</p>"
+    }
+  ]
+}
+{% endschema %}

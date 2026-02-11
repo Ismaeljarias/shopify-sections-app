@@ -2,63 +2,63 @@
 {{ 'hero-banner.css' | asset_url | stylesheet_tag }}
 
 <!-- Hero Banner: static section, no dynamic sub-blocks needed -->
-<div class="app-hero-banner app-hero-banner--{{ section.settings.height }} app-hero-banner--align-{{ section.settings.alignment }}" id="app-hero-{{ section.id }}" style="background-color: #f3f4f6;">
+<div class="app-hero-banner app-hero-banner--{{ block.settings.height }} app-hero-banner--align-{{ block.settings.alignment }}" id="app-hero-{{ block.id }}" style="background-color: #f3f4f6;">
   <div class="app-hero-banner__media">
-    {%- if section.settings.video_url != blank -%}
+    {%- if block.settings.video_url != blank -%}
       <video
         class="app-hero-banner__video"
         autoplay
         loop
         muted
         playsinline
-        aria-label="{{ section.settings.heading | escape }}"
+        aria-label="{{ block.settings.heading | escape }}"
       >
-        <source src="{{ section.settings.video_url }}" type="video/mp4">
+        <source src="{{ block.settings.video_url }}" type="video/mp4">
       </video>
-    {%- elsif section.settings.background_image != blank -%}
+    {%- elsif block.settings.background_image != blank -%}
       <img
         class="app-hero-banner__image"
-        src="{{ section.settings.background_image | image_url: width: 1920 }}"
+        src="{{ block.settings.background_image | image_url: width: 1920 }}"
         srcset="
-          {{ section.settings.background_image | image_url: width: 750 }} 750w,
-          {{ section.settings.background_image | image_url: width: 1100 }} 1100w,
-          {{ section.settings.background_image | image_url: width: 1500 }} 1500w,
-          {{ section.settings.background_image | image_url: width: 1920 }} 1920w
+          {{ block.settings.background_image | image_url: width: 750 }} 750w,
+          {{ block.settings.background_image | image_url: width: 1100 }} 1100w,
+          {{ block.settings.background_image | image_url: width: 1500 }} 1500w,
+          {{ block.settings.background_image | image_url: width: 1920 }} 1920w
         "
         sizes="100vw"
-        alt="{{ section.settings.background_image.alt | escape }}"
+        alt="{{ block.settings.background_image.alt | escape }}"
         loading="lazy"
-        width="{{ section.settings.background_image.width }}"
-        height="{{ section.settings.background_image.height }}"
+        width="{{ block.settings.background_image.width }}"
+        height="{{ block.settings.background_image.height }}"
       >
     {%- else -%}
       {{ 'lifestyle-1' | placeholder_svg_tag: 'app-hero-banner__image app-hero-banner__image--placeholder' }}
     {%- endif -%}
 
-    {%- assign overlay_opacity = section.settings.overlay_opacity | plus: 0 | divided_by: 100.0 -%}
+    {%- assign overlay_opacity = block.settings.overlay_opacity | plus: 0 | divided_by: 100.0 -%}
     <div class="app-hero-banner__overlay" style="opacity: {{ overlay_opacity }};">&nbsp;</div>
   </div>
 
   <div class="app-hero-banner__content">
     <div class="app-container">
       <div class="app-hero-banner__text">
-        {%- assign heading_text = section.settings.heading | default: "Welcome to Our Store" -%}
+        {%- assign heading_text = block.settings.heading | default: "Welcome to Our Store" -%}
         <h1 class="app-h1 app-hero-banner__heading">{{ heading_text }}</h1>
 
-        {%- assign subheading_text = section.settings.subheading | default: "Discover amazing products and exceptional service" -%}
+        {%- assign subheading_text = block.settings.subheading | default: "Discover amazing products and exceptional service" -%}
         <p class="app-hero-banner__subheading">{{ subheading_text }}</p>
 
-        {%- if section.settings.button_text != blank and section.settings.button_link != blank -%}
+        {%- if block.settings.button_text != blank and block.settings.button_link != blank -%}
           <div class="app-hero-banner__button">
-            {% render 'button', text: section.settings.button_text, url: section.settings.button_link, style: 'primary' %}
+            <a href="{{ block.settings.button_link }}" class="app-button app-button--primary">{{ block.settings.button_text }}</a>
           </div>
-        {%- elsif section.settings.button_text != blank -%}
+        {%- elsif block.settings.button_text != blank -%}
           <div class="app-hero-banner__button">
-            {% render 'button', text: section.settings.button_text, url: '#', style: 'primary' %}
+            <a href="#" class="app-button app-button--primary">{{ block.settings.button_text }}</a>
           </div>
         {%- else -%}
           <div class="app-hero-banner__button">
-            {% render 'button', text: 'Shop Now', url: '#', style: 'primary' %}
+            <a href="#" class="app-button app-button--primary">Shop Now</a>
           </div>
         {%- endif -%}
       </div>
@@ -69,9 +69,7 @@
 {% schema %}
 {
   "name": "Hero Banner",
-  "enabled_on": {
-    "templates": ["*"]
-  },
+  "target": "section",
   "settings": [
     {
       "type": "image_picker",
@@ -139,11 +137,6 @@
         { "value": "full", "label": "Full Screen" }
       ],
       "default": "medium"
-    }
-  ],
-  "presets": [
-    {
-      "name": "Hero Banner"
     }
   ]
 }

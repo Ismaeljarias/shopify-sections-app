@@ -1,7 +1,7 @@
 /**
  * faq-accordion.js
  * Keyboard-accessible accordion with smooth transitions.
- * Minimal JS, ARIA-compliant.
+ * Uses Event Delegation for dynamic content support.
  */
 
 (function() {
@@ -9,40 +9,42 @@
 
   class FAQAccordion {
     constructor(element) {
+      if (!element) return;
       this.accordion = element;
-      this.allowMultiple = this.accordion.dataset.multiple === 'true';
-      this.buttons = Array.from(this.accordion.querySelectorAll('[data-faq-button]'));
-
-      if (this.buttons.length === 0) return;
-
+      this.allowMultiple = this.accordion.getAttribute('data-multiple') === 'true';
       this.init();
     }
 
     init() {
-      this.buttons = Array.from(this.accordion.querySelectorAll('[data-faq-button]'));
-      this.setupButtons();
+      // Use event delegation on the container
+      this.accordion.addEventListener('click', this.handleClick.bind(this));
+      this.accordion.addEventListener('keydown', this.handleKeyboard.bind(this));
+      
       this.handleEditorEvents();
     }
 
-    setupButtons() {
-      this.buttons.forEach(button => {
-        button.addEventListener('click', (e) => {
-          e.preventDefault();
-          this.toggleItem(button);
-        });
+    handleClick(e) {
+      const button = e.target.closest('[data-faq-button]');
+      if (!button || !this.accordion.contains(button)) return;
 
-        button.addEventListener('keydown', (e) => {
-          this.handleKeyboard(e, button);
-        });
-      });
+      e.preventDefault();
+      this.toggleItem(button);
+    }
+    
+    getButtons() {
+      return Array.from(this.accordion.querySelectorAll('[data-faq-button]'));
     }
 
     toggleItem(button) {
       const isExpanded = button.getAttribute('aria-expanded') === 'true';
 
       if (!this.allowMultiple && !isExpanded) {
-        this.buttons.forEach(btn => {
-          if (btn !== button) this.closeItem(btn);
+        // Close others if single mode
+        const allButtons = this.getButtons();
+        allButtons.forEach(btn => {
+          if (btn !== button && btn.getAttribute('aria-expanded') === 'true') {
+            this.closeItem(btn);
+          }
         });
       }
 
@@ -55,22 +57,17 @@
 
     openItem(button) {
       button.setAttribute('aria-expanded', 'true');
-      const answerId = button.getAttribute('aria-controls');
-      const answer = document.getElementById(answerId);
-
-      if (answer) {
-        const content = answer.querySelector('.app-faq__answer-content');
-        if (content) {
-          answer.style.setProperty('--content-height', `${content.scrollHeight}px`);
-        }
-      }
+      // The CSS transition handles the height based on grid-template-rows
     }
 
     closeItem(button) {
       button.setAttribute('aria-expanded', 'false');
     }
 
-    handleKeyboard(e, button) {
+    handleKeyboard(e) {
+      const button = e.target.closest('[data-faq-button]');
+      if (!button || !this.accordion.contains(button)) return;
+
       const key = e.key;
 
       if (key === 'Enter' || key === ' ') {
@@ -79,61 +76,44 @@
         return;
       }
 
-      const currentIndex = this.buttons.indexOf(button);
+      const buttons = this.getButtons();
+      const currentIndex = buttons.indexOf(button);
       let targetButton = null;
 
       if (key === 'ArrowDown' || key === 'ArrowRight') {
         e.preventDefault();
-        targetButton = this.buttons[currentIndex + 1] || this.buttons[0];
+        targetButton = buttons[(currentIndex + 1) % buttons.length];
       } else if (key === 'ArrowUp' || key === 'ArrowLeft') {
         e.preventDefault();
-        targetButton = this.buttons[currentIndex - 1] || this.buttons[this.buttons.length - 1];
+        targetButton = buttons[(currentIndex - 1 + buttons.length) % buttons.length];
       } else if (key === 'Home') {
         e.preventDefault();
-        targetButton = this.buttons[0];
+        targetButton = buttons[0];
       } else if (key === 'End') {
         e.preventDefault();
-        targetButton = this.buttons[this.buttons.length - 1];
+        targetButton = buttons[buttons.length - 1];
       }
 
-      if (targetButton) targetButton.focus();
-    }
-
-    /** Reinitialize after blocks are added/removed in the theme editor. */
-    reinit() {
-      this.buttons = Array.from(this.accordion.querySelectorAll('[data-faq-button]'));
-      this.setupButtons();
+      if (targetButton) {
+        targetButton.focus();
+      }
     }
 
     handleEditorEvents() {
       if (typeof Shopify === 'undefined' || !Shopify.designMode) return;
 
-      document.addEventListener('shopify:section:load', (e) => {
-        if (e.target.contains(this.accordion)) this.init();
-      });
-
-      document.addEventListener('shopify:section:unload', (e) => {
-        if (e.target.contains(this.accordion)) this.destroy();
-      });
-
-      // Reinitialize when blocks are added or removed
-      document.addEventListener('shopify:section:rerender', (e) => {
-        if (e.target.contains(this.accordion)) this.reinit();
-      });
-
-      // Open the selected block in the editor
+      // When blocks are selected/deselected in the Theme Editor
       document.addEventListener('shopify:block:select', (e) => {
         const button = e.target.querySelector('[data-faq-button]');
-        if (button && this.buttons.includes(button)) {
+        if (button && this.accordion.contains(button)) {
           this.openItem(button);
           button.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       });
 
-      // Close the deselected block in the editor
       document.addEventListener('shopify:block:deselect', (e) => {
         const button = e.target.querySelector('[data-faq-button]');
-        if (button && this.buttons.includes(button)) {
+        if (button && this.accordion.contains(button)) {
           this.closeItem(button);
         }
       });
@@ -144,23 +124,29 @@
     }
   }
 
-  function initAccordions() {
+  // Global init function exposed for manual calls
+  window.initAccordions = function() {
     const accordions = document.querySelectorAll('[data-faq-accordion]');
     accordions.forEach(accordion => {
+      // Prevent multiple initializations on the same element
+      if (accordion.classList.contains('app-accordion-initialized')) return;
+      
       new FAQAccordion(accordion);
+      accordion.classList.add('app-accordion-initialized');
     });
-  }
+  };
 
+  // Auto-init
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccordions);
+    document.addEventListener('DOMContentLoaded', window.initAccordions);
   } else {
-    initAccordions();
+    window.initAccordions();
   }
 
-  document.addEventListener('shopify:section:load', (e) => {
-    const accordions = e.target.querySelectorAll('[data-faq-accordion]');
-    accordions.forEach(accordion => {
-      new FAQAccordion(accordion);
-    });
-  });
+  // Shopify Events
+  document.addEventListener('shopify:section:load', window.initAccordions);
+  
+  // Custom Event for dynamic loading
+  window.addEventListener('app:faq:update', window.initAccordions);
+
 })();

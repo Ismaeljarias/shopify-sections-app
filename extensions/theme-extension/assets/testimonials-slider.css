@@ -54,13 +54,13 @@
 
 @media (min-width: 768px) {
   .app-testimonials__item {
-    flex: 0 0 50%;
+    flex: 0 0 calc((100% - 1.5rem) / 2);
   }
 }
 
 @media (min-width: 1024px) {
   .app-testimonials__item {
-    flex: 0 0 33.333%;
+    flex: 0 0 calc((100% - 3rem) / 3);
   }
 }
 

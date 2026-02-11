@@ -1,0 +1,219 @@
+{{ 'app-base.css' | asset_url | stylesheet_tag }}
+{{ 'testimonials-slider.css' | asset_url | stylesheet_tag }}
+<!-- Use inline script for reliable execution order, but main logic in asset -->
+<script src="{{ 'testimonials-slider.js' | asset_url }}" defer></script>
+
+{%- assign heading = block.settings.heading -%}
+{%- assign autoplay = block.settings.autoplay -%}
+{%- assign name = block.settings.name -%}
+{%- assign role = block.settings.role -%}
+{%- assign rating = block.settings.rating | default: 5 | plus: 0 -%}
+{%- assign review = block.settings.review -%}
+{%- assign avatar = block.settings.avatar -%}
+
+{%- comment -%}
+  App Block: Testimonial Slide
+  Behaves as a dynamic slide item.
+  Uses client-side JS to group adjacent blocks into a single slider container.
+{%- endcomment -%}
+
+<div class="app-testimonials-item-wrapper" 
+     id="app-block-wrapper-{{ block.id }}"
+     data-app-block-id="{{ block.id }}" 
+     data-heading="{{ heading | escape }}"
+     data-autoplay="{{ autoplay }}"
+     style="display: none;">
+  
+  <div class="app-testimonials__item" data-slide data-original-block-id="{{ block.id }}" {{ block.shopify_attributes }}>
+    <div class="app-testimonials__card">
+      {%- if avatar != blank or name != blank -%}
+        <div class="app-testimonials__avatar-wrapper">
+          {%- if avatar != blank -%}
+            <img
+              class="app-testimonials__avatar"
+              src="{{ avatar | image_url: width: 80 }}"
+              alt="{{ name | escape }}"
+              loading="lazy"
+              width="80"
+              height="80"
+            >
+          {%- elsif name != blank -%}
+            <div class="app-testimonials__avatar app-testimonials__avatar--fallback">
+              {{ name | slice: 0 | upcase }}
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- if rating > 0 -%}
+        <div class="app-testimonials__rating">
+          {% render 'stars', rating: rating %}
+        </div>
+      {%- endif -%}
+
+      {%- if review != blank -%}
+        <blockquote class="app-testimonials__review">
+          {{ review }}
+        </blockquote>
+      {%- endif -%}
+
+      {%- if name != blank or role != blank -%}
+        <div class="app-testimonials__author">
+          {%- if name != blank -%}
+            <div class="app-testimonials__name">{{ name }}</div>
+          {%- endif -%}
+          {%- if role != blank -%}
+            <div class="app-testimonials__role">{{ role }}</div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const blockId = "{{ block.id }}";
+    
+    function groupTestimonialBlock() {
+      const wrapper = document.getElementById(`app-block-wrapper-${blockId}`);
+      if (!wrapper) return;
+
+      // Find the parent section. In Theme App Extensions, this is usually the nearest .shopify-section
+      const section = wrapper.closest('.shopify-section') || wrapper.closest('section') || wrapper.parentElement;
+      if (!section) return;
+
+      // Generate a unique group ID for this section
+      // We use a class selector for the container to handle potential multiple groups if needed, 
+      // but usually one per section is enough.
+      const GroupId = "app-testimonials-group-" + section.id;
+      let groupContainer = document.getElementById(GroupId);
+
+      // Create the Master Container if it doesn't exist
+      if (!groupContainer) {
+        groupContainer = document.createElement('div');
+        groupContainer.id = GroupId;
+        groupContainer.className = "app-testimonials app-section";
+        
+        // Use settings from this first block for the container
+        const heading = wrapper.getAttribute('data-heading');
+        const autoplay = wrapper.getAttribute('data-autoplay');
+
+        groupContainer.innerHTML = `
+          <div class="app-container" data-slider data-autoplay="${autoplay}">
+            <h2 class="app-h2 app-testimonials__heading">${heading}</h2>
+            
+            <div class="app-testimonials__wrapper">
+              <div class="app-testimonials__track">
+                <!-- Slides will be inserted here -->
+              </div>
+            </div>
+
+            <div class="app-testimonials__footer">
+              <button type="button" class="app-testimonials__button app-testimonials__prev" data-prev aria-label="Previous testimonial" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+              <div class="app-testimonials__dots" data-dots-container></div>
+              <button type="button" class="app-testimonials__button app-testimonials__next" data-next aria-label="Next testimonial" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+            </div>
+          </div>
+        `;
+
+        // Insert the container. 
+        // We try to insert it before the first wrapper we find in this section, 
+        // effectively grouping them at the top of the block list visually.
+        // Or just append it to the section if possible. 
+        // Inserting before the current wrapper is a safe bet for the first item.
+        wrapper.parentElement.insertBefore(groupContainer, wrapper);
+      }
+
+      // Move the slide content into the track
+      const slide = wrapper.querySelector('.app-testimonials__item');
+      if (slide) {
+        const track = groupContainer.querySelector('.app-testimonials__track');
+        if (track) {
+          // Check if deduplication is needed
+          const existing = track.querySelector(`[data-original-block-id="${blockId}"]`);
+          if (existing) existing.remove();
+
+          track.appendChild(slide);
+          
+          // Trigger update on the next tick
+          setTimeout(() => {
+             if (window.initTestimonialsSliders) window.initTestimonialsSliders();
+          }, 50);
+        }
+      }
+    }
+
+    // Execute
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', groupTestimonialBlock);
+    } else {
+      groupTestimonialBlock();
+    }
+    
+    document.addEventListener('shopify:section:load', groupTestimonialBlock);
+    // document.addEventListener('shopify:block:select', groupTestimonialBlock); 
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Testimonial Slide",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What Our Customers Say",
+      "info": "Define heading on the first slide."
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Testimonial Content"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar",
+      "label": "Avatar"
+    },
+    {
+      "type": "text",
+      "id": "name",
+      "label": "Customer Name",
+      "default": "Sarah Johnson"
+    },
+    {
+      "type": "text",
+      "id": "role",
+      "label": "Role / Company",
+      "default": "Verified Buyer"
+    },
+    {
+      "type": "range",
+      "id": "rating",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "label": "Rating",
+      "default": 5
+    },
+    {
+      "type": "textarea",
+      "id": "review",
+      "label": "Review",
+      "default": "Absolutely love this product! The quality is outstanding and it arrived faster than expected."
+    }
+  ]
+}
+{% endschema %}
