@@ -7,9 +7,7 @@
 .app-testimonials {
   background-color: #f9fafb;
   position: relative;
-  width: 100vw;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 100%;
   overflow: hidden;
   
   /* Enable container queries */
@@ -27,7 +25,8 @@
 /* Slider Wrapper */
 .app-testimonials__wrapper {
   position: relative;
-  max-width: 1200px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   padding: 0 1rem;
 }
@@ -79,6 +78,26 @@
 .app-testimonials__track[data-item-count-gt="3"] .app-testimonials__item {
   flex: 0 0 calc(33.333% - 1rem);
   width: calc(33.333% - 1rem);
+}
+
+/* Responsive behavior using container queries */
+/* On small containers, force single column regardless of item count */
+@container testimonials (max-width: 500px) {
+  .app-testimonials__track[data-item-count="2"] .app-testimonials__item,
+  .app-testimonials__track[data-item-count="3"] .app-testimonials__item,
+  .app-testimonials__track[data-item-count-gt="3"] .app-testimonials__item {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+}
+
+/* On medium containers, show max 2 columns */
+@container testimonials (min-width: 501px) and (max-width: 768px) {
+  .app-testimonials__track[data-item-count="3"] .app-testimonials__item,
+  .app-testimonials__track[data-item-count-gt="3"] .app-testimonials__item {
+    flex: 0 0 calc(50% - 0.75rem);
+    width: calc(50% - 0.75rem);
+  }
 }
 
 /* Slider Footer (Controls) */

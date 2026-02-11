@@ -89,27 +89,39 @@
 
       // Set data attributes for CSS to handle responsive behavior
       const itemCount = this.slides.length;
+      const containerWidth = this.slider.clientWidth;
       
       // Remove old attributes
       this.track.removeAttribute('data-item-count');
       this.track.removeAttribute('data-item-count-gt');
       
+      // Determine items per view based on container width and item count
+      let itemsPerView;
+      
+      if (containerWidth <= 500) {
+        // Small containers: always show 1 item
+        itemsPerView = 1;
+      } else if (containerWidth <= 768) {
+        // Medium containers: show max 2 items
+        itemsPerView = Math.min(itemCount, 2);
+      } else {
+        // Large containers: show based on item count (max 3)
+        itemsPerView = Math.min(itemCount, 3);
+      }
+      
       // Set appropriate data attribute based on item count
       if (itemCount === 1) {
         this.track.setAttribute('data-item-count', '1');
-        this.itemsPerView = 1;
       } else if (itemCount === 2) {
         this.track.setAttribute('data-item-count', '2');
-        this.itemsPerView = 2;
       } else if (itemCount === 3) {
         this.track.setAttribute('data-item-count', '3');
-        this.itemsPerView = 3;
       } else {
-        // More than 3 items: show 3 at a time with slider
+        // More than 3 items: show based on container width
         this.track.setAttribute('data-item-count-gt', '3');
-        this.itemsPerView = 3;
       }
       
+      this.itemsPerView = itemsPerView;
       this.pageCount = Math.ceil(this.slides.length / this.itemsPerView);
 
       if (this.currentPage >= this.pageCount) {
