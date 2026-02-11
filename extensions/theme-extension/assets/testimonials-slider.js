@@ -87,14 +87,27 @@
         return;
       }
 
-      const trackWidth = this.track.clientWidth;
-      const firstSlideWidth = this.slides[0].offsetWidth;
+      // Set data attributes for CSS to handle responsive behavior
+      const itemCount = this.slides.length;
       
-      // Calculate how many items are actually visible based on rendered widths
-      if (firstSlideWidth > 0 && trackWidth > 0) {
-        this.itemsPerView = Math.round(trackWidth / firstSlideWidth) || 1;
-      } else {
+      // Remove old attributes
+      this.track.removeAttribute('data-item-count');
+      this.track.removeAttribute('data-item-count-gt');
+      
+      // Set appropriate data attribute based on item count
+      if (itemCount === 1) {
+        this.track.setAttribute('data-item-count', '1');
         this.itemsPerView = 1;
+      } else if (itemCount === 2) {
+        this.track.setAttribute('data-item-count', '2');
+        this.itemsPerView = 2;
+      } else if (itemCount === 3) {
+        this.track.setAttribute('data-item-count', '3');
+        this.itemsPerView = 3;
+      } else {
+        // More than 3 items: show 3 at a time with slider
+        this.track.setAttribute('data-item-count-gt', '3');
+        this.itemsPerView = 3;
       }
       
       this.pageCount = Math.ceil(this.slides.length / this.itemsPerView);

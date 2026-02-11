@@ -49,7 +49,7 @@
   display: none;
 }
 
-/* Slider Item - Container-Aware Sizing */
+/* Slider Item - Dynamic Sizing Based on Item Count */
 .app-testimonials__item {
   flex: 0 0 100%;
   scroll-snap-align: center;
@@ -57,29 +57,28 @@
   height: auto;
 }
 
-/* Container Queries: Respond to the container's width, not viewport */
-/* Small containers (< 640px): 1 card */
-@container testimonials (min-width: 640px) {
-  .app-testimonials__item {
-    flex: 0 0 calc(50% - 0.75rem);
-    width: calc(50% - 0.75rem);
-  }
+/* When there's exactly 1 item: 100% width */
+.app-testimonials__track[data-item-count="1"] .app-testimonials__item {
+  flex: 0 0 100%;
+  width: 100%;
 }
 
-/* Medium containers (640px - 959px): 2 cards */
-@container testimonials (min-width: 960px) {
-  .app-testimonials__item {
-    flex: 0 0 calc(33.333% - 1rem);
-    width: calc(33.333% - 1rem);
-  }
+/* When there are exactly 2 items: 50% width each */
+.app-testimonials__track[data-item-count="2"] .app-testimonials__item {
+  flex: 0 0 calc(50% - 0.75rem);
+  width: calc(50% - 0.75rem);
 }
 
-/* Large containers (960px+): 3 cards */
-@container testimonials (min-width: 1280px) {
-  .app-testimonials__item {
-    flex: 0 0 calc(25% - 1.125rem);
-    width: calc(25% - 1.125rem);
-  }
+/* When there are exactly 3 items: 33.33% width each */
+.app-testimonials__track[data-item-count="3"] .app-testimonials__item {
+  flex: 0 0 calc(33.333% - 1rem);
+  width: calc(33.333% - 1rem);
+}
+
+/* When there are more than 3 items: show 3 at a time with slider */
+.app-testimonials__track[data-item-count-gt="3"] .app-testimonials__item {
+  flex: 0 0 calc(33.333% - 1rem);
+  width: calc(33.333% - 1rem);
 }
 
 /* Slider Footer (Controls) */
